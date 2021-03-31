@@ -90,4 +90,28 @@ contract("DistributedTask", accounts => {
         const taskList1 = await contractOS.retrieveTaskList.call();
         assert.notEqual(taskList0, taskList1, "The taskList should have one hash less");
     })
+
+    it("should have a task list empty", async () =>
+    {
+        const taskHash2 = "ccfybeiguzlisexandrqqcvidxtpjtid2acudavdebot6zdck5hcjguxc4i";
+        const taskSol2 = "bafybeiguzlisexandrqqcvidxtpjtid2acudavdebot6zdck5hcjguxcjj";
+        const taskHash3 = "dcfybeiguzlisexandrqqcvidxtpjtid2acudavdebot6zdck5hcjguxc4i";
+        const taskSol3 = "dafybeiguzlisexandrqqcvidxtpjtid2acudavdebot6zdck5hcjguxcjj";
+        const contractOS = await DistributedTask.deployed();
+
+        const taskList0 = await contractOS.retrieveTaskList.call();
+
+        assert(taskList0.length == 0, "The taskList should not have any hash stored");
+
+        await contractOS.commitTaskHash(taskHash2, { from: acc0, value: taskValue });
+        await contractOS.commitTaskHash(taskHash3, { from: acc0, value: taskValue });
+        await contractOS.commitSolutionHash(taskHash2, taskSol2, { from: acc1 });
+        await contractOS.commitSolutionHash(taskHash3, taskSol3, { from: acc1 });
+        await contractOS.markTaskSolved(taskHash2, taskSol2, { from: acc0 });
+        await contractOS.markTaskSolved(taskHash3, taskSol3, { from: acc0 });
+
+        const taskList1 = await contractOS.retrieveTaskList.call();
+
+        assert(taskList1.length == 0, "The taskList should not have any hash stored");
+    })
 });

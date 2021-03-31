@@ -122,6 +122,6 @@ contract DistributedTask {
         uint tll = taskList.length;
         require(index < tll);
         taskList[index] = taskList[tll - 1];
-        taskList.length--;
+        taskList.pop();
     }
 }
