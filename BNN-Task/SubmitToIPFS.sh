@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#  Theta Edge Marketplace
+#
+#  Created by RHVT on 01/Mar/2021.
+#  Copyright © 2021 R. All rights reserved.
+#
 # //////////////////////////////////////////////////////////
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
