@@ -1,4 +1,4 @@
-/* 
+/*
 //  Theta Edge Marketplace
 //
 //  Created by RHVT on 01/Mar/2021.
@@ -20,8 +20,6 @@
 */
 .App {
   text-align: center;
-  background-color:black;
-  color:rgba(0, 255, 255, 0.75);;
 }
 
 .App-logo {
@@ -58,3 +56,12 @@
     transform: rotate(360deg);
   }
 }
+
+table, th, td {
+    border: 1px solid white;
+    border-collapse: collapse;
+}
+
+ th, td {
+     padding: 5px;
+ }

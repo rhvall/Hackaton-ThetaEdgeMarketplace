@@ -77,7 +77,6 @@ contract("DistributedTask", accounts => {
 
         assert(taskList0.length >= 1, "The taskList should have at least one hash stored");
 
-
         await contractOS.markTaskSolved(taskHash, solutionHash, { from: acc0 });
 
         const storedTask = await contractOS.taskMap.call(taskHash);

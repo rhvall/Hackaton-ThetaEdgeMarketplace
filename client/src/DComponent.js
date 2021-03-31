@@ -54,12 +54,10 @@ class DComponent extends Component
             taskValue: 0,
             solutionTask: "",
             solutionHash: "",
-            taskList: []
+            taskList: [],
+            solutionList: []
         };
-    }
 
-    async componentWillMount()
-    {
         this.loadBlockChainData();
     }
 
@@ -70,7 +68,7 @@ class DComponent extends Component
         taskListMethod.call((err, res) =>
         {
             if (err) {
-                console.log("Error when occured", err);
+                console.log("Error loading Blockchain data", err);
                 return
             }
 
@@ -78,32 +76,98 @@ class DComponent extends Component
             this.setState({
                 taskList: res
             });
+
+            this.setState({ solutionList: [] });
+            res.map((task) => {
+                this.solutionsForTask(task[1]);
+            })
         }
         );
+    }
 
-        // if (Object.keys(taskMap).length !== 0) {
-        //     tasks = taskMap.map((task) =>
-        //         <li>{task}</li>
-        //     );
-        // }
-        // console.log("Tasks:", tasks);
+    solutionsForTask = task =>
+    {
+        const solListMethod = this.state.contract.methods.retrieveSolutionList(task);
+        solListMethod.call((err, res) =>
+        {
+            if (err) {
+                console.log("Error loading solutions: ", err);
+                return;
+            }
+
+            console.log("Solutions for Task:", task, res);
+
+            if (res.length <= 0) {
+                return;
+            }
+
+            var prevSol = this.state.solutionList;
+
+            prevSol.push(res)
+
+            this.setState({ solutionList: prevSol});
+        })
     }
 
     taskListProp = tasks => {
-        if (tasks.length > 0) {
-            return (
-                <React.Fragment>
-                <h2> Task List </h2>
-                <ul>
-                    {
-                        tasks.map((task) =>
-                            <li key={task}>{task}</li>
-                        )
-                    }
-                </ul>
-                </React.Fragment>
-            );
+        if (tasks.length <= 0) {
+            return;
         }
+
+        return (
+            <React.Fragment>
+            <h2> Task List </h2>
+            <table>
+            <tbody>
+            <tr>
+                <th key="IPFS Hash"> IPFS Hash </th>
+                <th key="Reward"> Reward </th>
+                <th key="Initiator"> Initiator </th>
+            </tr>
+            {
+                tasks.map((task) =>
+                    <tr key={task[1]}>
+                    <td key={task[1]}>{task[1]}</td>
+                    <td key={task[2]}>{task[2]}</td>
+                    <td key={task[0]}>{task[0]}</td>
+                    </tr>
+                )
+            }
+            </tbody>
+            </table>
+            </React.Fragment>
+        );
+    }
+
+    solutionListProp = sols => {
+        if (sols.length <= 0) {
+            return;
+        }
+
+        return (
+            <React.Fragment>
+            <h2> Registered solutions </h2>
+            <table>
+            <tbody>
+            <tr>
+                <th key="Task"> Task Hash </th>
+                <th key="Solution"> IPFS Solution </th>
+                <th key="Solver"> Solver </th>
+            </tr>
+            {
+                Object.entries(sols).map(([task, solution], i) =>
+                    solution.map((sol) =>
+                    <tr key={"Sol"+JSON.stringify(sol[1])}>
+                    <td key={sol[0]}>{sol[0]}</td>
+                    <td key={sol[1]}>{sol[1]}</td>
+                    <td key={sol[2]}>{sol[2]}</td>
+                    </tr>
+                ))
+            }
+            </tbody>
+            </table>
+            </React.Fragment>
+        );
     }
 
     handleFormChange = e => {
@@ -136,7 +200,7 @@ class DComponent extends Component
         const file = event.target.files[0];
         const reader = new window.FileReader();
         reader.readAsArrayBuffer(file);
-        reader.onloadend= () => {
+        reader.onloadend = () => {
             this.setState({ fileBuffer: Buffer(reader.result) });
         }
     }
@@ -154,10 +218,11 @@ class DComponent extends Component
             ({ from: acc0, value: taskValue }, (err, res) =>
             {
                 if (err) {
-                    console.log("An error occured", err)
-                    return
+                    console.log("An error occured", err);
+                    return;
                 }
-                    console.log("Hash of the transaction: " + res)
+                    console.log("Hash of the transaction: " + res);
+                    this.loadBlockChainData();
                 }
             );
         } catch (e)
@@ -183,6 +248,7 @@ class DComponent extends Component
                     return
                 }
                     console.log("Hash of the solution transaction: " + res)
+                    this.loadBlockChainData();
                 }
             );
         } catch (e)
@@ -204,10 +270,11 @@ class DComponent extends Component
             ({ from: acc0 }, (err, res) =>
             {
                 if (err) {
-                    console.log("An error occured", err)
-                    return
+                    console.log("An error occured", err);
+                    return;
                 }
-                    console.log("Hash of the solution transaction: " + res)
+                    console.log("Hash of the solution transaction: " + res);
+                    this.loadBlockChainData();
                 }
             );
         } catch (e)
@@ -243,9 +310,9 @@ class DComponent extends Component
             <ToastContainer />
             <div>
                 <img src={logo} alt="Hackaton-Logo" />
-                <h1>Theta Edge Compute Market with Neural Networks</h1>
+                <h1>Theta Edge Marketplace with Neural Networks</h1>
                 <p>Employ the Theta Network to deploy computations using edge nodes
-                and providing bounties to their results.
+                and providing bounties for their results.
                 </p>
             </div>
 
@@ -255,28 +322,25 @@ class DComponent extends Component
                     <AccountData accountIndex={0} units={"ether"} precision={2} />
                 </nav>
             </div>
-
-            <div className="section">
-                <h2>DistributedTask with event</h2>
-                <p>Change the value to invoke a contract event</p>
-                <p>
-                    <strong>Stored Value: </strong>
-                </p>
-            </div>
-
-            <div>
-                <h2>Change meme</h2>
-                <div>
-                    <img alt="Img File" src={`https://ipfs.infura.io/ipfs/${this.state.fileHash}`} />
-                </div>
-                <form onSubmit={this.fileSubmit} >
-                    <input type="file" onChange={this.captureFile} />
-                    <input type='submit' />
-                </form>
-            </div>
+        {
+            // <div>
+            //     <h2>Change meme</h2>
+            //     <div>
+            //         <img alt="Img File" src={`https://ipfs.infura.io/ipfs/${this.state.fileHash}`} />
+            //     </div>
+            //     <form onSubmit={this.fileSubmit} >
+            //         <input type="file" onChange={this.captureFile} />
+            //         <input type='submit' />
+            //     </form>
+            // </div>
+        }
             <div>
                 { this.taskListProp(this.state.taskList) }
             </div>
+            <div>
+                { this.solutionListProp(this.state.solutionList) }
+            </div>
+
             <div>
                 <h2> Add Task </h2>
                 <form onSubmit={this.taskSubmit} >

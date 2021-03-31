@@ -33,7 +33,7 @@ const drizzleOptions = {
       DistributedTask
   ],
   events: {
-    // SimpleStorage: ["StorageSet"],
+    DistributedTask: ["CommitTask", "CommitSolution", "MarkSolutionAsSolved"],
   },
   polls: {
     // set polling interval to 30secs so we don't get buried in poll events
@@ -43,12 +43,14 @@ const drizzleOptions = {
 
 const contractEventNotifier = store => next => action => {
     if (action.type === EventActions.EVENT_FIRED) {
-        const contract = action.name
-        const contractEvent = action.event.event
-        const message = action.event.returnValues._message
-        const display = `${contract}(${contractEvent}): ${message}`
+        console.log("Notification Action", action);
+        const contract = action.name;
+        const contractEvent = action.event.event;
+        // const message = action.event.returnValues._message
+        const message = "Block mined";
+        const display = `${contract}(${contractEvent}): ${message}`;
 
-        toast.success(display, { position: toast.POSITION.TOP_RIGHT })
+        toast.success(display, { position: toast.POSITION.TOP_RIGHT });
     }
 
     return next(action)

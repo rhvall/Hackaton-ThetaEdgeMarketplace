@@ -37,11 +37,10 @@ contract DistributedTask {
         address payable solver;
     }
 
-    uint constant MIN_COLLATERAL = 10000000;
+    uint public constant MIN_COLLATERAL = 10000000;
     mapping(string => Task) public taskMap;
     mapping(string => Solution[]) public solutionMap;
-    string[] public taskList;
-
+    string[] internal taskList;
 
     event CommitTask(string taskHash, uint rewardAmount);
     event CommitSolution(string taskHash, string solutionHash, address solver);
@@ -106,12 +105,22 @@ contract DistributedTask {
         return false;
     }
 
-    function retrieveTaskList() public view returns(string[] memory) {
-        return taskList;
+    function retrieveTaskList() public view returns(Task[] memory) {
+        Task[] memory elems = new Task[](taskList.length);
+        for (uint i = 0; i < taskList.length; i++) {
+            string memory hashStr = taskList[i];
+            elems[i] = taskMap[hashStr];
+        }
+
+        return elems;
     }
 
     function activeTasks() public view returns(uint256) {
         return taskList.length;
+    }
+
+    function retrieveSolutionList(string memory hashStr) public view returns(Solution[] memory) {
+        return solutionMap[hashStr];
     }
 
     function compareStrings(string memory a, string memory b) internal pure returns (bool) {
