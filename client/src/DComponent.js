@@ -19,15 +19,8 @@
 
 import React, { Component } from "react";
 import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import { drizzleConnect } from "@drizzle/react-plugin";
 import PropTypes from 'prop-types'
-import
-{
-    ContractData,
-    AccountData,
-    ContractForm
-} from "@drizzle/react-components";
+import { AccountData } from "@drizzle/react-components";
 import logo from "./images/ThetaHackaton.png";
 
 const ipfsClient = require('ipfs-http-client');
@@ -82,7 +75,8 @@ class DComponent extends Component
             ));
             res.map((task) => {
                 this.solutionsForTask(task[1]);
-            })
+                return {};
+            });
         }
         );
     }

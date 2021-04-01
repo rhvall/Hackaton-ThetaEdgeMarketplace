@@ -18,7 +18,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 import { toast } from 'react-toastify'
-import { Drizzle, generateStore, EventActions } from '@drizzle/store'
+import { generateStore, EventActions } from '@drizzle/store'
 import DistributedTask from "../contracts/DistributedTask.json";
 
 const drizzleOptions = {
