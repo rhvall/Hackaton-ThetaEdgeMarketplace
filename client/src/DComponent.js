@@ -61,9 +61,9 @@ class DComponent extends Component
         this.loadBlockChainData();
     }
 
-    loadBlockChainData = async () =>
+    loadBlockChainData = () =>
     {
-        console.log("Contract: ", this.state.contract);
+        console.log("loadBlockChainData Contract: ", this.state.contract);
         const taskListMethod = this.state.contract.methods.retrieveTaskList();
         taskListMethod.call((err, res) =>
         {
@@ -77,7 +77,9 @@ class DComponent extends Component
                 taskList: res
             });
 
-            this.setState({ solutionList: [] });
+            this.setState((state, props) => (
+                { solutionList: [] }
+            ));
             res.map((task) => {
                 this.solutionsForTask(task[1]);
             })
@@ -101,11 +103,11 @@ class DComponent extends Component
                 return;
             }
 
-            var prevSol = this.state.solutionList;
-
-            prevSol.push(res)
-
-            this.setState({ solutionList: prevSol});
+            this.setState((state, props) => {
+                var elems = state.solutionList;
+                elems.push(res)
+                return { solutionList: elems }
+            });
         })
     }
 
@@ -222,7 +224,7 @@ class DComponent extends Component
                     return;
                 }
                     console.log("Hash of the transaction: " + res);
-                    this.loadBlockChainData();
+                    setTimeout(this.loadBlockChainData, 1000);
                 }
             );
         } catch (e)
@@ -248,7 +250,7 @@ class DComponent extends Component
                     return
                 }
                     console.log("Hash of the solution transaction: " + res)
-                    this.loadBlockChainData();
+                    setTimeout(this.loadBlockChainData, 1000);
                 }
             );
         } catch (e)
@@ -274,7 +276,7 @@ class DComponent extends Component
                     return;
                 }
                     console.log("Hash of the solution transaction: " + res);
-                    this.loadBlockChainData();
+                    setTimeout(this.loadBlockChainData, 1000);
                 }
             );
         } catch (e)
