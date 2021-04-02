@@ -45,7 +45,7 @@ class DComponent extends Component
         const provider = new thetajs.providers.HttpProvider(chainId);
 
         this.state = {
-            contract: context.drizzle.contracts.DistributedTask,
+            contract: {},
             account: props.accounts[0],
             fileBuffer: null,
             fileHash: "Qmdaw5ZUeZ484N9FfgQDHM57XeTw2MuCTjPdDpUGBvk1KV",
@@ -115,9 +115,7 @@ class DComponent extends Component
         try {
             const tasksPre = await contract.retrieveTaskList();
 
-            this.setState((state, props) => (
-                { solutionList: [] }
-            ));
+            this.setState({ contract: contract, solutionList: []});
             const tasks = tasksPre.map((elem) => {
                 var arr = [];
                 arr[0] = elem[0];
@@ -165,7 +163,7 @@ class DComponent extends Component
             <tbody>
             <tr>
                 <th key="IPFS Hash"> IPFS Hash </th>
-                <th key="TFuel Reward"> Reward </th>
+                <th key="TFuel Reward"> TFuel Reward </th>
                 <th key="Initiator"> Initiator </th>
             </tr>
             {
@@ -328,7 +326,6 @@ class DComponent extends Component
     }
 ////////////////////////////////////////////////////////////////////////////////
 
-
     handleFormChange = e => {
         this.setState({ [e.target.id]: e.target.value });
     }
@@ -373,25 +370,21 @@ class DComponent extends Component
     {
         event.preventDefault();
         const taskHash = this.state.taskHash;
-        const taskValue = this.state.taskValue;
-        const acc0 = this.state.account;
-        //console.log("TaskHash:", taskHash);
-        //console.log("TaskValue:", taskValue);
+        const taskValue = thetajs.utils.toWei(this.state.taskValue);
+        const contract = this.state.contract;
+        const overrides = {
+            value: taskValue // tfuelWei to send
+        };
+
         try {
-            this.state.contract.methods.commitTaskHash(taskHash).send
-            ({ from: acc0, value: taskValue }, (err, res) =>
-            {
-                if (err) {
-                    //console.log("An error occured", err);
-                    return;
-                }
-                    //console.log("Hash of the transaction: " + res);
-                    // setTimeout(this.loadContractData, 1000);
-                }
-            );
-        } catch (e)
+            // console.log("TaskValue:", taskValue);
+            const res = await contract.commitTaskHash(taskHash, overrides);
+            console.log("Task submitted: ", res);
+            setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
+        }
+        catch (e)
         {
-            //console.log('Failed task submission:', e);
+            console.log("Failed task submission:", e);
         }
     }
 
@@ -412,7 +405,7 @@ class DComponent extends Component
                     return
                 }
                     //console.log("Hash of the solution transaction: " + res)
-                    setTimeout(this.loadContractData, 1000);
+                    setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
                 }
             );
         } catch (e)
@@ -438,7 +431,7 @@ class DComponent extends Component
                     return;
                 }
                     //console.log("Hash of the solution transaction: " + res);
-                    setTimeout(this.loadContractData, 1000);
+                    setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
                 }
             );
         } catch (e)
