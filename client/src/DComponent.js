@@ -336,22 +336,20 @@ class DComponent extends Component
             switch (e.target.id) {
                 case "thetaAccountPrivKey":
                     this.thetaPrivKeySubmitEvent(e);
-                break;
+                    break;
+                case "taskValue":
+                case "taskHash":
+                    this.taskSubmit(e);
+                    break;
+                case "solutionTask":
+                case "solutionHash":
+                    this.solutionSubmit(e);
+                    break;
+                case "taskSolution":
+                case "taskHashSolution":
+                    this.taskSolvedSubmit(e);
+                    break
             }
-            // const taskValue = this.state.taskValue;
-            // const taskHash = this.state.taskHash;
-            //
-            // if (taskValue <= 0) {
-            //     //console.log("Task value should be greater than 0");
-            //     return;
-            // }
-            //
-            // if (taskHash.length <= 3) {
-            //     //console.log("Task hash should be greater than 3 characters");
-            //     return;
-            // }
-            //
-            // this.taskSubmit(e);
         }
     };
 
@@ -376,8 +374,9 @@ class DComponent extends Component
             value: taskValue // tfuelWei to send
         };
 
+        console.log("Task submit:", taskHash, taskValue);
+        
         try {
-            // console.log("TaskValue:", taskValue);
             const res = await contract.commitTaskHash(taskHash, overrides);
             console.log("Task submitted: ", res);
             setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
@@ -393,24 +392,16 @@ class DComponent extends Component
         event.preventDefault();
         const solutionTask = this.state.solutionTask;
         const solutionHash = this.state.solutionHash;
-        const acc0 = this.state.account;
-        //console.log("solutionTask:", solutionTask);
-        //console.log("solutionHash:", solutionHash);
+        const contract = this.state.contract;
+        console.log("Solution submit", solutionHash, solutionTask);
         try {
-            this.state.contract.methods.commitSolutionHash(solutionTask, solutionHash).send
-            ({ from: acc0 }, (err, res) =>
-            {
-                if (err) {
-                    //console.log("An error occured", err)
-                    return
-                }
-                    //console.log("Hash of the solution transaction: " + res)
-                    setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
-                }
-            );
-        } catch (e)
+            const res = await contract.commitSolutionHash(solutionTask, solutionHash);
+            console.log("Result solution transaction: ", res)
+            setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
+        }
+        catch (e)
         {
-            //console.log('Failed task submission:', e);
+            console.log('Failed solution submission:', e);
         }
     }
 
@@ -419,24 +410,15 @@ class DComponent extends Component
         event.preventDefault();
         const taskSolution = this.state.taskSolution;
         const taskHashSolution = this.state.taskHashSolution;
-        const acc0 = this.state.account;
-        //console.log("taskHashSolution:", taskSolution);
-        //console.log("taskHashSolution:", taskHashSolution);
+        const contract = this.state.contract;
+        console.log("Task Solved submit", taskHashSolution, taskSolution);
         try {
-            this.state.contract.methods.markTaskSolved(taskHashSolution, taskSolution).send
-            ({ from: acc0 }, (err, res) =>
-            {
-                if (err) {
-                    //console.log("An error occured", err);
-                    return;
-                }
-                    //console.log("Hash of the solution transaction: " + res);
-                    setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
-                }
-            );
+            const res = await contract.markTaskSolved(taskHashSolution, taskSolution)
+            console.log("Hash of task solved:", res)
+            setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
         } catch (e)
         {
-            //console.log('Failed task submission:', e);
+            console.log('Failed task solved submission:', e);
         }
     }
 
