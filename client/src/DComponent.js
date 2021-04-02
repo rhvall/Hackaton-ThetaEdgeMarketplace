@@ -23,21 +23,31 @@ import PropTypes from 'prop-types'
 import { AccountData } from "@drizzle/react-components";
 import logo from "./images/ThetaHackaton.png";
 
+import thetaContract from "./contracts/DistributedTask"
+
 const ipfsClient = require('ipfs-http-client');
 const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001,
                         protocol: "https", apiPath:'/api/v0' });
+
+const thetajs = require("@thetalabs/theta-js");
+const thetaWalletConnect = require("@thetalabs/theta-wallet-connect");
+
+const TCOOKIE = "ThetaEdgeMarketplacePrivKey";
 
 class DComponent extends Component
 {
     constructor(props, context)
     {
-        // const taskHash = '0x341f85f5eca6304166fcfb6f591d49f6019f23fa39be0615e6417da06bf747ce'.valueOf();
-        // const solutionHash = '0x351185f5eca6304166fcfb6f591d49f6019f23fa39be0615e6417da06bf464aa'.valueOf();
         // IPFS = bafybeiguzlisexandrqqcvidxtpjtid2acudavdebot6zdck5hcjguxc4i
-        // 1 ETH = 1000000000000000000 Wei
+        // 1 theta = 1000000000000000000 Wei
         super(props);
-        console.log("Constructor: ", props);
-        console.log("Context: ", context);
+
+        const chainId = thetajs.networks.ChainIds.Privatenet;
+        const provider = new thetajs.providers.HttpProvider(chainId);
+
+        //console.log("Constructor: ", props);
+        //console.log("Context: ", context);
+
         this.state = {
             contract: context.drizzle.contracts.DistributedTask,
             account: props.accounts[0],
@@ -48,51 +58,119 @@ class DComponent extends Component
             solutionTask: "",
             solutionHash: "",
             taskList: [],
-            solutionList: []
+            solutionList: [],
+            thetaProvider: provider,
+            thetaWallet: {},
+            thetaAccount: {},
+            thetaAccountPrivKey: ""
         };
 
-        this.loadBlockChainData();
+        const privCookie = this.getCookie(TCOOKIE);
+        if (privCookie.length !== 0) {
+            this.thetaPrivKeySubmit(privCookie);
+        }
+
+        // this.loadContractData();
     }
 
-    loadBlockChainData = () =>
+
+    setCookie = (cname, cvalue, exdays) =>
     {
-        console.log("loadBlockChainData Contract: ", this.state.contract);
-        const taskListMethod = this.state.contract.methods.retrieveTaskList();
-        taskListMethod.call((err, res) =>
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires="+d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    getCookie = cname =>
+    {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i < ca.length; i++)
         {
-            if (err) {
-                console.log("Error loading Blockchain data", err);
-                return
+            var c = ca[i];
+            while (c.charAt(0) == ' ')
+            {
+                c = c.substring(1);
             }
 
-            console.log("Active Tasks: ", res);
-            this.setState({
-                taskList: res
-            });
+            if (c.indexOf(name) == 0)
+                return c.substring(name.length, c.length);
+        }
+
+        return "";
+    }
+
+    removeCookieAndState = () =>
+    {
+        this.setState({
+            thetaWallet: {},
+            thetaAccount: {},
+            thetaAccountPrivKey: ""
+        });
+
+        this.setCookie(TCOOKIE, "", 10);
+    }
+
+    loadContractData = async (connectedWallet) =>
+    {
+        const contractAddress = "0x01eaca027c07e6e6891f30926e80876f40505a4d";
+        const contract = new thetajs.Contract(contractAddress, thetaContract.abi, connectedWallet);
+        console.log("Contract:", contract);
+
+        try {
+            const tasksPre = await contract.retrieveTaskList();
 
             this.setState((state, props) => (
                 { solutionList: [] }
             ));
-            res.map((task) => {
-                this.solutionsForTask(task[1]);
-                return {};
+            const tasks = tasksPre.map((elem) => {
+                var arr = [];
+                arr[0] = elem[0];
+                arr[1] = elem[1];
+                arr[2] = thetajs.utils.fromWei(elem[2]);
+                this.solutionsForTask(arr[1], contract);
+                return arr;
             });
+            console.log("TaskList: ", tasks);
+            this.setState({
+                taskList: tasks
+            });
+        } catch (e) {
+            console.log("Error loading contract data", e);
         }
-        );
+
+
+
+        // // console.log("loadContractData Contract: ", this.state.contract);
+        // const taskListMethod = this.state.contract.methods.retrieveTaskList();
+        // taskListMethod.call((err, res) =>
+        // {
+        //     if (err) {
+        //         //console.log("Error loading Blockchain data", err);
+        //         return
+        //     }
+        //
+        //     //console.log("Active Tasks: ", res);
+        //     this.setState({
+        //         taskList: res
+        //     });
+        //
+        //     this.setState((state, props) => (
+        //         { solutionList: [] }
+        //     ));
+        //     res.map((task) => {
+        //         this.solutionsForTask(task[1]);
+        //         return {};
+        //     });
+        // }
+        // );
     }
 
-    solutionsForTask = task =>
+    solutionsForTask = async (task, contract) =>
     {
-        const solListMethod = this.state.contract.methods.retrieveSolutionList(task);
-        solListMethod.call((err, res) =>
-        {
-            if (err) {
-                console.log("Error loading solutions: ", err);
-                return;
-            }
-
-            console.log("Solutions for Task:", task, res);
-
+        try {
+            const res = await contract.retrieveSolutionList(task);
             if (res.length <= 0) {
                 return;
             }
@@ -102,7 +180,30 @@ class DComponent extends Component
                 elems.push(res)
                 return { solutionList: elems }
             });
-        })
+        } catch (e) {
+            console.log("Error at solutions for task:", task, e);
+        }
+
+        // const solListMethod = this.state.contract.methods.retrieveSolutionList(task);
+        // solListMethod.call((err, res) =>
+        // {
+        //     if (err) {
+        //         //console.log("Error loading solutions: ", err);
+        //         return;
+        //     }
+        //
+        //     //console.log("Solutions for Task:", task, res);
+        //
+        //     if (res.length <= 0) {
+        //         return;
+        //     }
+        //
+        //     this.setState((state, props) => {
+        //         var elems = state.solutionList;
+        //         elems.push(res)
+        //         return { solutionList: elems }
+        //     });
+        // })
     }
 
     taskListProp = tasks => {
@@ -117,7 +218,7 @@ class DComponent extends Component
             <tbody>
             <tr>
                 <th key="IPFS Hash"> IPFS Hash </th>
-                <th key="Reward"> Reward </th>
+                <th key="TFuel Reward"> Reward </th>
                 <th key="Initiator"> Initiator </th>
             </tr>
             {
@@ -166,6 +267,72 @@ class DComponent extends Component
         );
     }
 
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+    thetaLoadAccount = (thetaAccount) =>
+    {
+        if (Object.keys(thetaAccount).length !== 0) {
+            return;
+        }
+        return (
+            <React.Fragment>
+            <h2> Load a theta account using Private Key </h2>
+            <form onSubmit={this.thetaPrivKeySubmitEvent} >
+                <input type="text" id="thetaAccountPrivKey" placeholder="Private Key"
+                    minLength="10" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <br/>
+                <input type='submit' />
+            </form>
+            </React.Fragment>
+        )
+    }
+
+    thetaAccountDetails = (thetaWallet, thetaAccount) =>
+    {
+        if (Object.keys(thetaAccount).length === 0) {
+            return;
+        }
+
+        const theta = thetajs.utils.fromWei(thetaAccount.coins.thetawei);
+        const tfuel = thetajs.utils.fromWei(thetaAccount.coins.tfuelwei);
+        return (
+            <React.Fragment>
+            <h2> Theta account </h2>
+            <p>Account: <b>{thetaWallet.address}</b></p>
+            <p>Theta: <b>{theta}</b></p>
+            <p>TFUel: <b>{tfuel}</b></p>
+            <button type="button" className="logout" onClick={this.removeCookieAndState}>Log out</button>
+            </React.Fragment>
+        )
+    }
+
+    thetaPrivKeySubmitEvent = async (event) =>
+    {
+        event.preventDefault();
+        const privKey = this.state.thetaAccountPrivKey;
+        this.thetaPrivKeySubmit(privKey);
+    }
+
+    thetaPrivKeySubmit = async (privKey) =>
+    {
+        const provider = this.state.thetaProvider;
+        const wallet = new thetajs.Wallet(privKey);
+        const connectedWallet = await wallet.connect(provider);
+        const connectedAccount = await provider.getAccount(connectedWallet.address);
+        console.log("connectedWallet:", connectedWallet);
+        this.setState({
+            thetaAccount: connectedAccount,
+            thetaWallet: connectedWallet
+        })
+
+        this.setCookie(TCOOKIE, privKey, 10);
+
+        this.loadContractData(this.state.thetaWallet);
+    }
+////////////////////////////////////////////////////////////////////////////////
+
+
     handleFormChange = e => {
         this.setState({ [e.target.id]: e.target.value });
     }
@@ -173,20 +340,25 @@ class DComponent extends Component
     handleKeyDown = e => {
         // if the enter key is pressed, call the contract action
         if (e.keyCode === 13) {
-            const taskValue = this.state.taskValue;
-            const taskHash = this.state.taskHash;
-
-            if (taskValue <= 0) {
-                console.log("Task value should be greater than 0");
-                return;
+            switch (e.target.id) {
+                case "thetaAccountPrivKey":
+                    this.thetaPrivKeySubmitEvent(e);
+                break;
             }
-
-            if (taskHash.length <= 3) {
-                console.log("Task hash should be greater than 3 characters");
-                return;
-            }
-
-            this.taskSubmit(e);
+            // const taskValue = this.state.taskValue;
+            // const taskHash = this.state.taskHash;
+            //
+            // if (taskValue <= 0) {
+            //     //console.log("Task value should be greater than 0");
+            //     return;
+            // }
+            //
+            // if (taskHash.length <= 3) {
+            //     //console.log("Task hash should be greater than 3 characters");
+            //     return;
+            // }
+            //
+            // this.taskSubmit(e);
         }
     };
 
@@ -207,23 +379,23 @@ class DComponent extends Component
         const taskHash = this.state.taskHash;
         const taskValue = this.state.taskValue;
         const acc0 = this.state.account;
-        console.log("TaskHash:", taskHash);
-        console.log("TaskValue:", taskValue);
+        //console.log("TaskHash:", taskHash);
+        //console.log("TaskValue:", taskValue);
         try {
             this.state.contract.methods.commitTaskHash(taskHash).send
             ({ from: acc0, value: taskValue }, (err, res) =>
             {
                 if (err) {
-                    console.log("An error occured", err);
+                    //console.log("An error occured", err);
                     return;
                 }
-                    console.log("Hash of the transaction: " + res);
-                    setTimeout(this.loadBlockChainData, 1000);
+                    //console.log("Hash of the transaction: " + res);
+                    // setTimeout(this.loadContractData, 1000);
                 }
             );
         } catch (e)
         {
-            console.log('Failed task submission:', e);
+            //console.log('Failed task submission:', e);
         }
     }
 
@@ -233,23 +405,23 @@ class DComponent extends Component
         const solutionTask = this.state.solutionTask;
         const solutionHash = this.state.solutionHash;
         const acc0 = this.state.account;
-        console.log("solutionTask:", solutionTask);
-        console.log("solutionHash:", solutionHash);
+        //console.log("solutionTask:", solutionTask);
+        //console.log("solutionHash:", solutionHash);
         try {
             this.state.contract.methods.commitSolutionHash(solutionTask, solutionHash).send
             ({ from: acc0 }, (err, res) =>
             {
                 if (err) {
-                    console.log("An error occured", err)
+                    //console.log("An error occured", err)
                     return
                 }
-                    console.log("Hash of the solution transaction: " + res)
-                    setTimeout(this.loadBlockChainData, 1000);
+                    //console.log("Hash of the solution transaction: " + res)
+                    setTimeout(this.loadContractData, 1000);
                 }
             );
         } catch (e)
         {
-            console.log('Failed task submission:', e);
+            //console.log('Failed task submission:', e);
         }
     }
 
@@ -259,23 +431,23 @@ class DComponent extends Component
         const taskSolution = this.state.taskSolution;
         const taskHashSolution = this.state.taskHashSolution;
         const acc0 = this.state.account;
-        console.log("taskHashSolution:", taskSolution);
-        console.log("taskHashSolution:", taskHashSolution);
+        //console.log("taskHashSolution:", taskSolution);
+        //console.log("taskHashSolution:", taskHashSolution);
         try {
             this.state.contract.methods.markTaskSolved(taskHashSolution, taskSolution).send
             ({ from: acc0 }, (err, res) =>
             {
                 if (err) {
-                    console.log("An error occured", err);
+                    //console.log("An error occured", err);
                     return;
                 }
-                    console.log("Hash of the solution transaction: " + res);
-                    setTimeout(this.loadBlockChainData, 1000);
+                    //console.log("Hash of the solution transaction: " + res);
+                    setTimeout(this.loadContractData, 1000);
                 }
             );
         } catch (e)
         {
-            console.log('Failed task submission:', e);
+            //console.log('Failed task submission:', e);
         }
     }
 
@@ -283,10 +455,10 @@ class DComponent extends Component
     fileSubmit = async (event) =>
     {
         event.preventDefault();
-        console.log("File to be submitted...");
-        console.log("Buffer:", this.state.fileBuffer);
+        //console.log("File to be submitted...");
+        //console.log("Buffer:", this.state.fileBuffer);
         const fileAddRes = await ipfs.add(this.state.fileBuffer);
-        console.log(fileAddRes);
+        //console.log(fileAddRes);
         this.setState({ fileHash: fileAddRes.cid.string });
         // ipfs.add(this.state.fileBuffer, (error, result) => {
         //     if (error) {
@@ -311,13 +483,20 @@ class DComponent extends Component
                 and providing bounties for their results.
                 </p>
             </div>
-
             <div>
-                <nav className="navbar">
-                    <h5> Account: </h5>
-                    <AccountData accountIndex={0} units={"ether"} precision={2} />
-                </nav>
+                {this.thetaLoadAccount(this.state.thetaWallet)}
             </div>
+            <div>
+                {this.thetaAccountDetails(this.state.thetaWallet, this.state.thetaAccount)}
+            </div>
+        {
+            // <div>
+            //     <nav className="navbar">
+            //         <h5> Account: </h5>
+            //         <AccountData accountIndex={0} units={"ether"} precision={2} />
+            //     </nav>
+            // </div>
+        }
         {
             // <div>
             //     <h2>Change meme</h2>
