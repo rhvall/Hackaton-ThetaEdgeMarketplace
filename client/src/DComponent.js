@@ -20,7 +20,6 @@
 import React, { Component } from "react";
 import { ToastContainer } from 'react-toastify'
 import PropTypes from 'prop-types'
-import { AccountData } from "@drizzle/react-components";
 import logo from "./images/ThetaHackaton.png";
 
 import thetaContract from "./contracts/DistributedTask"
@@ -45,9 +44,6 @@ class DComponent extends Component
         const chainId = thetajs.networks.ChainIds.Privatenet;
         const provider = new thetajs.providers.HttpProvider(chainId);
 
-        //console.log("Constructor: ", props);
-        //console.log("Context: ", context);
-
         this.state = {
             contract: context.drizzle.contracts.DistributedTask,
             account: props.accounts[0],
@@ -67,10 +63,8 @@ class DComponent extends Component
 
         const privCookie = this.getCookie(TCOOKIE);
         if (privCookie.length !== 0) {
-            this.thetaPrivKeySubmit(privCookie);
+            this.thetaPrivKeySubmit(privCookie, provider);
         }
-
-        // this.loadContractData();
     }
 
 
@@ -89,12 +83,12 @@ class DComponent extends Component
         for(var i = 0; i < ca.length; i++)
         {
             var c = ca[i];
-            while (c.charAt(0) == ' ')
+            while (c.charAt(0) === ' ')
             {
                 c = c.substring(1);
             }
 
-            if (c.indexOf(name) == 0)
+            if (c.indexOf(name) === 0)
                 return c.substring(name.length, c.length);
         }
 
@@ -139,32 +133,6 @@ class DComponent extends Component
         } catch (e) {
             console.log("Error loading contract data", e);
         }
-
-
-
-        // // console.log("loadContractData Contract: ", this.state.contract);
-        // const taskListMethod = this.state.contract.methods.retrieveTaskList();
-        // taskListMethod.call((err, res) =>
-        // {
-        //     if (err) {
-        //         //console.log("Error loading Blockchain data", err);
-        //         return
-        //     }
-        //
-        //     //console.log("Active Tasks: ", res);
-        //     this.setState({
-        //         taskList: res
-        //     });
-        //
-        //     this.setState((state, props) => (
-        //         { solutionList: [] }
-        //     ));
-        //     res.map((task) => {
-        //         this.solutionsForTask(task[1]);
-        //         return {};
-        //     });
-        // }
-        // );
     }
 
     solutionsForTask = async (task, contract) =>
@@ -183,27 +151,6 @@ class DComponent extends Component
         } catch (e) {
             console.log("Error at solutions for task:", task, e);
         }
-
-        // const solListMethod = this.state.contract.methods.retrieveSolutionList(task);
-        // solListMethod.call((err, res) =>
-        // {
-        //     if (err) {
-        //         //console.log("Error loading solutions: ", err);
-        //         return;
-        //     }
-        //
-        //     //console.log("Solutions for Task:", task, res);
-        //
-        //     if (res.length <= 0) {
-        //         return;
-        //     }
-        //
-        //     this.setState((state, props) => {
-        //         var elems = state.solutionList;
-        //         elems.push(res)
-        //         return { solutionList: elems }
-        //     });
-        // })
     }
 
     taskListProp = tasks => {
@@ -267,6 +214,55 @@ class DComponent extends Component
         );
     }
 
+    addTaskProp = () =>
+    {
+        return (
+            <React.Fragment>
+            <h2> Add Task </h2>
+            <form onSubmit={this.taskSubmit} >
+                <label>TFuel for Task:</label>
+                <input type="text" id="taskValue" placeholder="Task TFuel value" minLength="1" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <br/>
+                <label>IPFS Hash:</label>
+                <input type="text" id="taskHash" placeholder="Task Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <input type='submit' />
+            </form>
+            </React.Fragment>
+        );
+    }
+
+    addSolutionTaskProp = () => {
+        return (
+            <React.Fragment>
+            <h2> Add Solution to task </h2>
+            <form onSubmit={this.solutionSubmit} >
+                <label>Task:</label>
+                <input type="text" id="solutionTask" placeholder="Task hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <br/>
+                <label>Solution IPFS Hash:</label>
+                <input type="text" id="solutionHash" placeholder="Solution Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <input type='submit' />
+            </form>
+            </React.Fragment>
+        )
+    }
+
+    markTaskSolvedProp = () => {
+        return (
+            <React.Fragment>
+            <h2> Mark task as solved </h2>
+            <form onSubmit={this.taskSolvedSubmit} >
+                <label>Task solution:</label>
+                <input type="text" id="taskSolution" placeholder="Task solution" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <br/>
+                <label>Task Hash:</label>
+                <input type="text" id="taskHashSolution" placeholder="Task Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <input type='submit' />
+            </form>
+            </React.Fragment>
+        )
+    }
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -298,7 +294,7 @@ class DComponent extends Component
         const tfuel = thetajs.utils.fromWei(thetaAccount.coins.tfuelwei);
         return (
             <React.Fragment>
-            <h2> Theta account </h2>
+            <h2>Theta account</h2>
             <p>Account: <b>{thetaWallet.address}</b></p>
             <p>Theta: <b>{theta}</b></p>
             <p>TFUel: <b>{tfuel}</b></p>
@@ -311,15 +307,15 @@ class DComponent extends Component
     {
         event.preventDefault();
         const privKey = this.state.thetaAccountPrivKey;
-        this.thetaPrivKeySubmit(privKey);
+        const provider = this.state.thetaProvider;
+        this.thetaPrivKeySubmit(privKey, provider);
     }
 
-    thetaPrivKeySubmit = async (privKey) =>
+    thetaPrivKeySubmit = async (privKey, thetaProvider) =>
     {
-        const provider = this.state.thetaProvider;
         const wallet = new thetajs.Wallet(privKey);
-        const connectedWallet = await wallet.connect(provider);
-        const connectedAccount = await provider.getAccount(connectedWallet.address);
+        const connectedWallet = await wallet.connect(thetaProvider);
+        const connectedAccount = await thetaProvider.getAccount(connectedWallet.address);
         console.log("connectedWallet:", connectedWallet);
         this.setState({
             thetaAccount: connectedAccount,
@@ -484,10 +480,10 @@ class DComponent extends Component
                 </p>
             </div>
             <div>
-                {this.thetaLoadAccount(this.state.thetaWallet)}
+                { this.thetaLoadAccount(this.state.thetaWallet) }
             </div>
             <div>
-                {this.thetaAccountDetails(this.state.thetaWallet, this.state.thetaAccount)}
+                { this.thetaAccountDetails(this.state.thetaWallet, this.state.thetaAccount) }
             </div>
         {
             // <div>
@@ -516,38 +512,12 @@ class DComponent extends Component
                 { this.solutionListProp(this.state.solutionList) }
             </div>
 
+                { this.addTaskProp() }
             <div>
-                <h2> Add Task </h2>
-                <form onSubmit={this.taskSubmit} >
-                    <label>TFuel for Task:</label>
-                    <input type="text" id="taskValue" placeholder="Task TFuel value" minLength="1" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                    <br/>
-                    <label>IPFS Hash:</label>
-                    <input type="text" id="taskHash" placeholder="Task Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                    <input type='submit' />
-                </form>
+                { this.addSolutionTaskProp() }
             </div>
             <div>
-                <h2> Add Solution to task </h2>
-                <form onSubmit={this.solutionSubmit} >
-                    <label>Task:</label>
-                    <input type="text" id="solutionTask" placeholder="Task hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                    <br/>
-                    <label>Solution IPFS Hash:</label>
-                    <input type="text" id="solutionHash" placeholder="Solution Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                    <input type='submit' />
-                </form>
-            </div>
-            <div>
-                <h2> Mark task as solved </h2>
-                <form onSubmit={this.taskSolvedSubmit} >
-                    <label>Task solution:</label>
-                    <input type="text" id="taskSolution" placeholder="Task solution" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                    <br/>
-                    <label>Task Hash:</label>
-                    <input type="text" id="taskHashSolution" placeholder="Task Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                    <input type='submit' />
-                </form>
+                { this.markTaskSolvedProp() }
             </div>
         </div>
     ); }
