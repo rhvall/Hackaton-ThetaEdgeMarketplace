@@ -19,7 +19,6 @@
 
 import React, { Component } from "react";
 import { ToastContainer } from 'react-toastify'
-import PropTypes from 'prop-types'
 import logo from "./images/ThetaHackaton.png";
 
 import thetaContract from "./contracts/DistributedTask"
@@ -46,7 +45,6 @@ class DComponent extends Component
 
         this.state = {
             contract: {},
-            account: props.accounts[0],
             fileBuffer: null,
             fileHash: "Qmdaw5ZUeZ484N9FfgQDHM57XeTw2MuCTjPdDpUGBvk1KV",
             taskHash: "",
@@ -375,7 +373,7 @@ class DComponent extends Component
         };
 
         console.log("Task submit:", taskHash, taskValue);
-        
+
         try {
             const res = await contract.commitTaskHash(taskHash, overrides);
             console.log("Task submitted: ", res);
@@ -446,12 +444,19 @@ class DComponent extends Component
     {
         return (
         <div className="App">
+            <br/>
+            <br/>
+            <br/>
             <ToastContainer />
             <div>
                 <img src={logo} alt="Hackaton-Logo" />
                 <h1>Theta Edge Marketplace with Neural Networks</h1>
-                <p>Employ the Theta Network to deploy computations using edge nodes
+                <p>
+                Employ the Theta Network to deploy computations using edge nodes
                 and providing bounties for their results.
+                </p>
+                <p>
+                Smart contract address: <a href="https://smart-contracts-sandbox-explorer.thetatoken.org/account/0x4a16fee0785b6e7fd0907fde2f13b97bb27513b4">0x01eaca027c07e6e6891f30926e80876f40505a4d</a>
                 </p>
             </div>
             <div>
@@ -460,14 +465,6 @@ class DComponent extends Component
             <div>
                 { this.thetaAccountDetails(this.state.thetaWallet, this.state.thetaAccount) }
             </div>
-        {
-            // <div>
-            //     <nav className="navbar">
-            //         <h5> Account: </h5>
-            //         <AccountData accountIndex={0} units={"ether"} precision={2} />
-            //     </nav>
-            // </div>
-        }
         {
             // <div>
             //     <h2>Change meme</h2>
@@ -494,12 +491,11 @@ class DComponent extends Component
             <div>
                 { this.markTaskSolvedProp() }
             </div>
+            <br/>
+            <br/>
+            <br/>
         </div>
     ); }
-}
-
-DComponent.contextTypes = {
-    drizzle: PropTypes.object
 }
 
 export default DComponent;
