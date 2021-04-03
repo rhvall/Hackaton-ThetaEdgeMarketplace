@@ -224,15 +224,15 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Add Task </h2>
-            <form onSubmit={this.taskSubmit} class="styleform">
+            <form onSubmit={this.taskSubmit} className="styleform">
                 <label>TFuel for Task:</label>
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type="text" id="taskValue" placeholder="Task TFuel value" minLength="1" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
                 <br/>
                 <label>IPFS Hash:</label>
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type="text" id="taskHash" placeholder="Task Hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type='submit' value="Submit" id="taskSubmitButton" />
             </form>
             </React.Fragment>
@@ -247,15 +247,15 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Add Solution to task </h2>
-            <form onSubmit={this.solutionSubmit} class="styleform">
+            <form onSubmit={this.solutionSubmit} className="styleform">
                 <label>Task:</label>
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type="text" id="solutionTask" placeholder="Task hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
                 <br/>
                 <label>Solution IPFS Hash:</label>
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type="text" id="solutionHash" placeholder="Solution Hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type='submit' value="Submit" id="solutionSubmitButton"/>
             </form>
             </React.Fragment>
@@ -270,15 +270,15 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Mark task as solved </h2>
-            <form onSubmit={this.taskSolvedSubmit} class="styleform">
+            <form onSubmit={this.taskSolvedSubmit} className="styleform">
                 <label>Task solution:</label>
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type="text" id="taskSolution" placeholder="Task Solution" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <label>Task Hash:</label>
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type="text" id="taskHashSolution" placeholder="Task Hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type='submit' value="Submit" id="taskSolvedSubmitButton"/>
             </form>
             </React.Fragment>
@@ -296,10 +296,10 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Load a theta account using Private Key </h2>
-            <form onSubmit={this.thetaPrivKeySubmitEvent} class="styleform">
+            <form onSubmit={this.thetaPrivKeySubmitEvent} className="styleform">
                 <input type="text" id="thetaAccountPrivKey" placeholder="Private Key"
                     minLength="10" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <div class="clear"></div>
+                <div className="clear"></div>
                 <input type='submit' value="Submit" />
             </form>
             </React.Fragment>
