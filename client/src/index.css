@@ -33,3 +33,36 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+html, body {
+    width: 100%;
+}
+
+table, th, td {
+    margin: 0 auto;
+    align-items: center;
+    text-align: center;
+    border: 1px solid white;
+    border-collapse: collapse;
+}
+
+ th, td {
+     padding: 5px;
+ }
+
+a {
+    color:rgba(0, 200, 255, 0.75);
+}
+
+.styleform label {
+    float:center;
+}
+
+.styleform input {
+    margin-left:0px;
+    width:300px;
+} /* this gives space for the label on the left */
+
+.styleform .clear {
+    clear:both;
+} /* prevent elements from stacking weirdly */

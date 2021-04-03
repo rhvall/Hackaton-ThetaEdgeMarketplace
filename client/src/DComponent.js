@@ -28,9 +28,11 @@ const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001,
                         protocol: "https", apiPath:'/api/v0' });
 
 const thetajs = require("@thetalabs/theta-js");
-const thetaWalletConnect = require("@thetalabs/theta-wallet-connect");
 
 const TCOOKIE = "ThetaEdgeMarketplacePrivKey";
+const TEXPACC = "https://smart-contracts-sandbox-explorer.thetatoken.org/account/"
+const CONTRACTADDRESS = "0x01eaca027c07e6e6891f30926e80876f40505a4d";
+const IPFSEXPLORER = "https://explore.ipld.io/#/explore/"
 
 class DComponent extends Component
 {
@@ -38,6 +40,8 @@ class DComponent extends Component
     {
         // IPFS = bafybeiguzlisexandrqqcvidxtpjtid2acudavdebot6zdck5hcjguxc4i
         // 1 theta = 1000000000000000000 Wei
+        // Min Wei = 10000001
+        // Min Theta = 0.00000000010000001
         super(props);
 
         const chainId = thetajs.networks.ChainIds.Privatenet;
@@ -106,8 +110,7 @@ class DComponent extends Component
 
     loadContractData = async (connectedWallet) =>
     {
-        const contractAddress = "0x01eaca027c07e6e6891f30926e80876f40505a4d";
-        const contract = new thetajs.Contract(contractAddress, thetaContract.abi, connectedWallet);
+        const contract = new thetajs.Contract(CONTRACTADDRESS, thetaContract.abi, connectedWallet);
         console.log("Contract:", contract);
 
         try {
@@ -167,9 +170,9 @@ class DComponent extends Component
             {
                 tasks.map((task) =>
                     <tr key={task[1]}>
-                    <td key={task[1]}>{task[1]}</td>
+                    <td key={task[1]}><a href={IPFSEXPLORER + task[1]}>{task[1]}</a></td>
                     <td key={task[2]}>{task[2]}</td>
-                    <td key={task[0]}>{task[0]}</td>
+                    <td key={task[0]}><a href={TEXPACC + task[0]}>{task[0]}</a></td>
                     </tr>
                 )
             }
@@ -198,9 +201,9 @@ class DComponent extends Component
                 Object.entries(sols).map(([task, solution], i) =>
                     solution.map((sol) =>
                     <tr key={"Sol"+JSON.stringify(sol[1])}>
-                    <td key={sol[0]}>{sol[0]}</td>
-                    <td key={sol[1]}>{sol[1]}</td>
-                    <td key={sol[2]}>{sol[2]}</td>
+                    <td key={sol[0]}><a href={IPFSEXPLORER + sol[0]}>{sol[0]}</a></td>
+                    <td key={sol[1]}><a href={IPFSEXPLORER + sol[1]}>{sol[1]}</a></td>
+                    <td key={sol[2]}><a href={TEXPACC + task[0]}>{sol[2]}</a></td>
                     </tr>
                 ))
             }
@@ -215,13 +218,16 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Add Task </h2>
-            <form onSubmit={this.taskSubmit} >
+            <form onSubmit={this.taskSubmit} class="styleform">
                 <label>TFuel for Task:</label>
+                <div class="clear"></div>
                 <input type="text" id="taskValue" placeholder="Task TFuel value" minLength="1" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
                 <br/>
                 <label>IPFS Hash:</label>
-                <input type="text" id="taskHash" placeholder="Task Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <input type='submit' />
+                <div class="clear"></div>
+                <input type="text" id="taskHash" placeholder="Task Hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <div class="clear"></div>
+                <input type='submit' value="Submit" id="taskSubmitButton" />
             </form>
             </React.Fragment>
         );
@@ -231,13 +237,16 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Add Solution to task </h2>
-            <form onSubmit={this.solutionSubmit} >
+            <form onSubmit={this.solutionSubmit} class="styleform">
                 <label>Task:</label>
-                <input type="text" id="solutionTask" placeholder="Task hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <div class="clear"></div>
+                <input type="text" id="solutionTask" placeholder="Task hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
                 <br/>
                 <label>Solution IPFS Hash:</label>
-                <input type="text" id="solutionHash" placeholder="Solution Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <input type='submit' />
+                <div class="clear"></div>
+                <input type="text" id="solutionHash" placeholder="Solution Hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <div class="clear"></div>
+                <input type='submit' value="Submit" id="solutionSubmitButton"/>
             </form>
             </React.Fragment>
         )
@@ -247,13 +256,16 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Mark task as solved </h2>
-            <form onSubmit={this.taskSolvedSubmit} >
+            <form onSubmit={this.taskSolvedSubmit} class="styleform">
                 <label>Task solution:</label>
-                <input type="text" id="taskSolution" placeholder="Task solution" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <br/>
+                <div class="clear"></div>
+                <input type="text" id="taskSolution" placeholder="Task Solution" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <div class="clear"></div>
                 <label>Task Hash:</label>
-                <input type="text" id="taskHashSolution" placeholder="Task Hash" minLength="3" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <input type='submit' />
+                <div class="clear"></div>
+                <input type="text" id="taskHashSolution" placeholder="Task Hash" minLength="5" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
+                <div class="clear"></div>
+                <input type='submit' value="Submit" id="taskSolvedSubmitButton"/>
             </form>
             </React.Fragment>
         )
@@ -270,11 +282,11 @@ class DComponent extends Component
         return (
             <React.Fragment>
             <h2> Load a theta account using Private Key </h2>
-            <form onSubmit={this.thetaPrivKeySubmitEvent} >
+            <form onSubmit={this.thetaPrivKeySubmitEvent} class="styleform">
                 <input type="text" id="thetaAccountPrivKey" placeholder="Private Key"
                     minLength="10" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
-                <br/>
-                <input type='submit' />
+                <div class="clear"></div>
+                <input type='submit' value="Submit" />
             </form>
             </React.Fragment>
         )
@@ -288,10 +300,11 @@ class DComponent extends Component
 
         const theta = thetajs.utils.fromWei(thetaAccount.coins.thetawei);
         const tfuel = thetajs.utils.fromWei(thetaAccount.coins.tfuelwei);
+        const accExplorer = TEXPACC + thetaWallet.address;
         return (
             <React.Fragment>
             <h2>Theta account</h2>
-            <p>Account: <b>{thetaWallet.address}</b></p>
+            <p>Account: <b><a href={accExplorer}>{thetaWallet.address}</a></b></p>
             <p>Theta: <b>{theta}</b></p>
             <p>TFUel: <b>{tfuel}</b></p>
             <button type="button" className="logout" onClick={this.removeCookieAndState}>Log out</button>
@@ -324,13 +337,16 @@ class DComponent extends Component
     }
 ////////////////////////////////////////////////////////////////////////////////
 
-    handleFormChange = e => {
+    handleFormChange = e =>
+    {
         this.setState({ [e.target.id]: e.target.value });
     }
 
-    handleKeyDown = e => {
+    handleKeyDown = e =>
+    {
         // if the enter key is pressed, call the contract action
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13)
+        {
             switch (e.target.id) {
                 case "thetaAccountPrivKey":
                     this.thetaPrivKeySubmitEvent(e);
@@ -346,7 +362,8 @@ class DComponent extends Component
                 case "taskSolution":
                 case "taskHashSolution":
                     this.taskSolvedSubmit(e);
-                    break
+                    break;
+                default: break;
             }
         }
     };
@@ -365,13 +382,32 @@ class DComponent extends Component
     taskSubmit = async (event) =>
     {
         event.preventDefault();
+        var button = document.getElementById('taskSubmitButton');
+        if (button.disabled === true) {
+            return
+        }
+
         const taskHash = this.state.taskHash;
         const taskValue = thetajs.utils.toWei(this.state.taskValue);
+
+        if (taskHash.length <= 5) {
+            console.log("Error at taskSubmit with taskHash", taskHash);
+            button.disabled = false;
+            return;
+        }
+
+        if (isNaN(taskValue)) {
+            console.log("Error at taskSubmit with taskValue", taskValue);
+            button.disabled = false;
+            return;
+        }
+
         const contract = this.state.contract;
         const overrides = {
             value: taskValue // tfuelWei to send
         };
 
+        button.disabled = true;
         console.log("Task submit:", taskHash, taskValue);
 
         try {
@@ -383,14 +419,29 @@ class DComponent extends Component
         {
             console.log("Failed task submission:", e);
         }
+
+        button.disabled = false;
     }
 
     solutionSubmit = async (event) =>
     {
         event.preventDefault();
+
+        var button = document.getElementById('solutionSubmitButton');
+        if (button.disabled === true) {
+            return
+        }
+
         const solutionTask = this.state.solutionTask;
         const solutionHash = this.state.solutionHash;
         const contract = this.state.contract;
+
+        if (solutionTask.length <= 5 || solutionHash.length <= 5) {
+            console.log("Error at solutionSubmit with solution", solutionTask, solutionHash);
+            button.disabled = false;
+            return;
+        }
+        button.disabled = true;
         console.log("Solution submit", solutionHash, solutionTask);
         try {
             const res = await contract.commitSolutionHash(solutionTask, solutionHash);
@@ -401,15 +452,31 @@ class DComponent extends Component
         {
             console.log('Failed solution submission:', e);
         }
+
+        button.disabled = false;
     }
 
     taskSolvedSubmit = async (event) =>
     {
         event.preventDefault();
+
+        var button = document.getElementById('taskSolvedSubmitButton');
+        if (button.disabled === true) {
+            return
+        }
+
         const taskSolution = this.state.taskSolution;
         const taskHashSolution = this.state.taskHashSolution;
         const contract = this.state.contract;
+
+        if (taskSolution.length <= 5 || taskHashSolution.length <= 5) {
+            console.log("Error at taskSolvedSubmit with task", taskSolution, taskHashSolution);
+            button.disabled = false;
+            return;
+        }
+
         console.log("Task Solved submit", taskHashSolution, taskSolution);
+        button.disabled = true;
         try {
             const res = await contract.markTaskSolved(taskHashSolution, taskSolution)
             console.log("Hash of task solved:", res)
@@ -418,6 +485,8 @@ class DComponent extends Component
         {
             console.log('Failed task solved submission:', e);
         }
+
+        button.disabled = false;
     }
 
 // QmXJNGZBy9265uzwTXdARRS2fc7xg6cMtCjnD6Cy1b11Ui
@@ -442,6 +511,7 @@ class DComponent extends Component
 
     render()
     {
+        const scAddress = TEXPACC + CONTRACTADDRESS;
         return (
         <div className="App">
             <br/>
@@ -456,7 +526,7 @@ class DComponent extends Component
                 and providing bounties for their results.
                 </p>
                 <p>
-                Smart contract address: <a href="https://smart-contracts-sandbox-explorer.thetatoken.org/account/0x4a16fee0785b6e7fd0907fde2f13b97bb27513b4">0x01eaca027c07e6e6891f30926e80876f40505a4d</a>
+                Smart contract address: <a href={scAddress}><b>{CONTRACTADDRESS}</b></a>
                 </p>
             </div>
             <div>
