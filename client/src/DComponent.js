@@ -100,6 +100,8 @@ class DComponent extends Component
     removeCookieAndState = () =>
     {
         this.setState({
+            taskList: [],
+            solutionList: [],
             thetaWallet: {},
             thetaAccount: {},
             thetaAccountPrivKey: ""
@@ -215,6 +217,10 @@ class DComponent extends Component
 
     addTaskProp = () =>
     {
+        if (Object.keys(this.state.thetaWallet).length <= 0) {
+            return;
+        }
+
         return (
             <React.Fragment>
             <h2> Add Task </h2>
@@ -234,6 +240,10 @@ class DComponent extends Component
     }
 
     addSolutionTaskProp = () => {
+        if (this.state.taskList.length <= 0) {
+            return;
+        }
+
         return (
             <React.Fragment>
             <h2> Add Solution to task </h2>
@@ -253,6 +263,10 @@ class DComponent extends Component
     }
 
     markTaskSolvedProp = () => {
+        if (this.state.solutionList.length <= 0) {
+            return;
+        }
+
         return (
             <React.Fragment>
             <h2> Mark task as solved </h2>
