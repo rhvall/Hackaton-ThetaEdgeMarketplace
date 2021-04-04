@@ -56,13 +56,17 @@ checkFolder() {
     fi
 }
 
+findLast() {
+    find . -name $1 -printf "%T@ %Tc %p\n" | sort -n | tail -n 1 | awk '{print $NF}'
+}
+
 checkFile $BISUNAEXE
 
 ## Set environment variables
 TESTFOLDER="TestCases/"
 TESTRESFOLDER=$TESTFOLDER"Result/"
-ALICE=($(ls alicesCPAbisunaGen100000*)) ## In case there are many files, only take the first
-BOB=($(ls bobsCPAbisunaGen100000*))     ## for that reason it is transformed as an array
+ALICE=($(findLast alicesCPA*)) ## In case there are many files, only take the first
+BOB=($(findLast bobsCPA*))     ## for that reason it is transformed as an array
 INIFILE="GenerateTestCases.ini"
 
 ## Check files

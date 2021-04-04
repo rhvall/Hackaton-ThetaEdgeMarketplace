@@ -6,6 +6,8 @@ This is an example that uses the Theta network to distribute workloads, in parti
 Neural Network (NN) training, among multiple edge computing nodes. IPFS is used to share
 hashes and data to verify the task has been accomplished and make it immutable.
 
+This task can be found in the IPFS hash [QmU1SdfUFawyLoJjdnXVWBornxPVrVQjFGZBjZxXwoec3N](https://explore.ipld.io/#/explore/QmU1SdfUFawyLoJjdnXVWBornxPVrVQjFGZBjZxXwoec3N)
+
 ## Background
 
 Blockchain technologies have revolutionized different industries and impacted the lives of millions around the world. The most common use case for Distributed Ledger Technology (DLT) is the transfer of value from one account to another, solving the problems like the Byzantine fault or Double Spending with a network of computers spread around the world.
@@ -23,7 +25,7 @@ the instructions to follow.
 This file can be downloaded from the webpage, also if you are running an IPFS node:
 
 ```
-ipfs get <THETA TASK HASH> -o ThetaTask.tar.gz
+ipfs get QmU1SdfUFawyLoJjdnXVWBornxPVrVQjFGZBjZxXwoec3N -o ThetaTask.tar.gz
 ```
 
 ## Stage 2
@@ -40,7 +42,7 @@ The uncompressed version will expand to the following:
 
 - README.txt: This file, explaining all phases
 - BiSUNA-Linux: Executable tested on Ubuntu 18.04
-- BiSUNA-MacOS: Executable tested on MacOS 10.15
+- BiSUNA-Darwin: Executable tested on MacOS 10.15
 - TestCases/: Folder with test files used to verify the NN performance
 - GenerateTestCases.ini: Configuration file needed in Stage 3
 - DistributedPopulationCPA.ini: Configuration file needed to determine the type of
@@ -83,8 +85,7 @@ more "random" that data behaves, the better it is. Therefore, at this stage, you
 will need to run the command:
 
 ```
-UNAMESTR=`uname`
-nohup ./BiSUNA-$UNAMESTR GenerateTestCases.ini > DistCPA-Tests-Log.txt 2>&1 &
+./RunTestCases.sh
 ```
 
 Which will generate the data needed to populate the folder "TestCases".
@@ -112,17 +113,12 @@ manually as follows:
 ipfs add ThetaResult.tar.gz
 ```
 
-(Optional) The user can modify the file name to distinguish you file from others. What
+Optional: The user can modify the file name to distinguish you file from others. What
 is used to differentiate between files and track submissions is the IPFS hash.
 
-## Stage 4-b (optional)
-
-If you submitted using IPFS, you will need to send the hash for the tar file in
+Once submitted using IPFS, you will need to send the hash for the tar file in DApp
 the webpage, which will trigger the "commit" function in the smart contract.
 
-If you submitted the tar file within the webpage, it will automatically tell the
-smart contract that you have already committed a task. The system will have a time
-expiration for that task.
 
 ## Stage 5
 
