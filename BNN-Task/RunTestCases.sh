@@ -57,7 +57,7 @@ checkFolder() {
 }
 
 findLast() {
-    find . -name $1 -printf "%T@ %Tc %p\n" | sort -n | tail -n 1 | awk '{print $NF}'
+    find . -name $1 -ls | sort -n | tail -n 1 | awk '{print $NF}'
 }
 
 checkFile $BISUNAEXE
