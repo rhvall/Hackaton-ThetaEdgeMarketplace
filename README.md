@@ -11,11 +11,15 @@ Theta Smart Contract Address
 
 [Webpage: thetaedgemarketplace.on.fleek.co](thetaedgemarketplace.on.fleek.co)
 
-[IPFS Hash: QmX3pGBAQE6PQiPtd38T2FRi9i59E9CsgK6nVMhV6xJ8Yy](https://explore.ipld.io/#/explore/QmX3pGBAQE6PQiPtd38T2FRi9i59E9CsgK6nVMhV6xJ8Yy)
-
+[Webpage IPFS Hash: QmX3pGBAQE6PQiPtd38T2FRi9i59E9CsgK6nVMhV6xJ8Yy](https://explore.ipld.io/#/explore/QmX3pGBAQE6PQiPtd38T2FRi9i59E9CsgK6nVMhV6xJ8Yy)
+|
 DevPost Project
 [https://devpost.com/software/theta-edge-compute-market-with-neural-networks](https://devpost.com/software/theta-edge-compute-market-with-neural-networks)
 
+[BNN Task IPFS Hash](https://explore.ipld.io/#/explore/QmR5JRNaxvxQtnxkoK1qb4L65yUDUfRgyYT4JQgEH8WN9x)
+
+[Short Video](https://youtu.be/vo0vzYRZqi4)
+[Long Video - Pass: thetahackaton](https://www.dailymotion.com/video/x80g1ic)
 
 ## This project needs you
 In case you are using this project and would like to contribute to its on-going development cost, please leave a tip in any of the following addresses:

@@ -21,7 +21,7 @@
 
 TARFILE="ThetaResult.tar.gz"
 [[ ! -f $TARFILE ]] && echo "$1 does not exist, script will finish" && exit 1;
-command -v ipfs >/dev/null 2>&1 || { echo >&2 "IPFS program required to submit a task. Install and try again."; exit 1 }
+command -v ipfs >/dev/null 2>&1 || { echo >&2 "IPFS program required to submit a task. Install and try again."; exit 1; }
 IPFSDAEMON=$(ps ax | grep "i[p]fs daemon")
 [[ -z $IPFSDAEMON ]] && echo "IPFS Daemon not running, execute ´ipfs daemon´ and run again. Exit now" && exit 1
 HASH=$(ipfs add $TARFILE -q)

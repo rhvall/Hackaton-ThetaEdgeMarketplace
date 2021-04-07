@@ -6,7 +6,7 @@ This is an example that uses the Theta network to distribute workloads, in parti
 Neural Network (NN) training, among multiple edge computing nodes. IPFS is used to share
 hashes and data to verify the task has been accomplished and make it immutable.
 
-This task can be found in the IPFS hash [Qma8wuPzwPPjU5DZQsq1wHjcCwbUib88JH9UQvuA1FHvbn](https://explore.ipld.io/#/explore/Qma8wuPzwPPjU5DZQsq1wHjcCwbUib88JH9UQvuA1FHvbn)
+This task can be found in the IPFS hash [QmR5JRNaxvxQtnxkoK1qb4L65yUDUfRgyYT4JQgEH8WN9x](https://explore.ipld.io/#/explore/QmR5JRNaxvxQtnxkoK1qb4L65yUDUfRgyYT4JQgEH8WN9x)
 
 ## Background
 
@@ -25,7 +25,7 @@ the instructions to follow.
 This file can be downloaded from the webpage, also if you are running an IPFS daemon node:
 
 ```
-ipfs get Qma8wuPzwPPjU5DZQsq1wHjcCwbUib88JH9UQvuA1FHvbn -o ThetaTask.tar.gz
+ipfs get QmR5JRNaxvxQtnxkoK1qb4L65yUDUfRgyYT4JQgEH8WN9x -o ThetaTask.tar.gz
 ```
 
 ## Stage 2
