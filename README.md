@@ -16,7 +16,8 @@ Theta Smart Contract Address
 DevPost Project
 [https://devpost.com/software/theta-edge-compute-market-with-neural-networks](https://devpost.com/software/theta-edge-compute-market-with-neural-networks)
 
-[BNN Task IPFS Hash](https://explore.ipld.io/#/explore/QmR5JRNaxvxQtnxkoK1qb4L65yUDUfRgyYT4JQgEH8WN9x)
+BNN Task IPFS Hash: [QmR5JRNaxvxQtnxkoK1qb4L65yUDUfRgyYT4JQgEH8WN9x](https://explore.ipld.io/#/explore/)
+BNN Task IPFS Hash 2: [bafybeibiuruiticm2tkwxjmcythz5iqpxkopqs53brpfl3vwqkg7rbfjwm](https://explore.ipld.io/#/explore/bafybeibiuruiticm2tkwxjmcythz5iqpxkopqs53brpfl3vwqkg7rbfjwm)
 
 [Short Video](https://youtu.be/vo0vzYRZqi4)
 [Long Video - Pass: thetahackaton](https://www.dailymotion.com/video/x80g1ic)
