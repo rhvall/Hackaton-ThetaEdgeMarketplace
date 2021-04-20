@@ -23,11 +23,14 @@ import logo from "./images/ThetaHackaton.png";
 
 import thetaContract from "./contracts/DistributedTask"
 
+import ThetaWalletConnect from "./thetaConnect.js";
+
 const ipfsClient = require('ipfs-http-client');
 const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001,
                         protocol: "https", apiPath:'/api/v0' });
 
 const thetajs = require("@thetalabs/theta-js");
+// const thetaWallet = require("@thetalabs/theta-wallet-connect");
 
 const TCOOKIE = "ThetaEdgeMarketplacePrivKey";
 const TEXPACC = "https://smart-contracts-sandbox-explorer.thetatoken.org/account/"
@@ -60,7 +63,8 @@ class DComponent extends Component
             thetaProvider: provider,
             thetaWallet: {},
             thetaAccount: {},
-            thetaAccountPrivKey: ""
+            thetaAccountPrivKey: "",
+            errorString: ""
         };
 
         const privCookie = this.getCookie(TCOOKIE);
@@ -112,8 +116,14 @@ class DComponent extends Component
 
     loadContractData = async (connectedWallet) =>
     {
-        const contract = new thetajs.Contract(CONTRACTADDRESS, thetaContract.abi, connectedWallet);
-        console.log("Contract:", contract);
+        var contract;
+
+        if (connectedWallet._isSigner == true) {
+            contract = new thetajs.Contract(CONTRACTADDRESS, thetaContract.abi, connectedWallet);
+        }
+        else { // Case when connectedWallet comes from ThetaWalletConnect
+            contract = new thetajs.Contract(CONTRACTADDRESS, thetaContract.abi, connectedWallet.provider);
+        }
 
         try {
             const tasksPre = await contract.retrieveTaskList();
@@ -132,7 +142,11 @@ class DComponent extends Component
                 taskList: tasks
             });
         } catch (e) {
-            console.log("Error loading contract data", e);
+            const str = "Error loading contract data";
+            console.log(str, e);
+            this.setState({
+                errorString: str
+            });
         }
     }
 
@@ -285,6 +299,21 @@ class DComponent extends Component
         )
     }
 
+    displayError = (errorString) => {
+        if (errorString.length <= 0) {
+            return;
+        }
+
+        setTimeout(() => { this.setState({ errorString: "" }); }, 5000);
+
+        return (
+            <React.Fragment>
+            <h2> Error while performing task: </h2>
+            <h1> { errorString } </h1>
+            </React.Fragment>
+        )
+    }
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -301,6 +330,21 @@ class DComponent extends Component
                     minLength="10" onKeyDown={this.handleKeyDown} onChange={this.handleFormChange} />
                 <div className="clear"></div>
                 <input type='submit' value="Submit" />
+            </form>
+            </React.Fragment>
+        )
+    }
+
+    thetaLoadFromWallet = (thetaAccount) =>
+    {
+        if (Object.keys(thetaAccount).length !== 0) {
+            return;
+        }
+        return (
+            <React.Fragment>
+            <h2> Load a theta account using Theta wallet </h2>
+            <form onSubmit={this.thetaWalletSubmitEvent} className="styleform">
+                <input type='submit' value="Connect" />
             </form>
             </React.Fragment>
         )
@@ -332,6 +376,59 @@ class DComponent extends Component
         const privKey = this.state.thetaAccountPrivKey;
         const provider = this.state.thetaProvider;
         this.thetaPrivKeySubmit(privKey, provider);
+    }
+
+    thetaWalletSubmitEvent = async (event) =>
+    {
+        event.preventDefault();
+        var res;
+        var strErr = "";
+        var tWC = ThetaWalletConnect;
+        var accs = [];
+        try {
+            res = await tWC.connect();
+        } catch (e) {
+            strErr = "Error while connect";
+            this.setState({ errorString: strErr });
+        }
+
+        if (res == false) {
+            strErr = "Connection not successful";
+            this.setState({ errorString: strErr });
+            return;
+        }
+
+        try {
+            accs = await tWC.requestAccounts();
+        } catch (e) {
+            strErr = "Error with account retrieval";
+            this.setState({ errorString: strErr });
+            return;
+        }
+
+        if (accs.length == 0) {
+            strErr = "No accounts found";
+            this.setState({ errorString: strErr });
+            return;
+        }
+
+        const thetaProvider = this.state.thetaProvider;
+        const wallet = { address: accs[0], provider: thetaProvider };
+
+        try {
+            const connectedAccount = await thetaProvider.getAccount(accs[0]);
+
+            this.setState({
+                thetaAccount: connectedAccount,
+                thetaWallet: wallet
+            });
+
+            this.loadContractData(wallet);
+        } catch (e) {
+            this.setState({
+                errorString: "Account does not have Theta or TFuel",
+            })
+        }
     }
 
     thetaPrivKeySubmit = async (privKey, thetaProvider) =>
@@ -545,6 +642,7 @@ class DComponent extends Component
             </div>
             <div>
                 { this.thetaLoadAccount(this.state.thetaWallet) }
+                { this.thetaLoadFromWallet(this.state.thetaWallet) }
             </div>
             <div>
                 { this.thetaAccountDetails(this.state.thetaWallet, this.state.thetaAccount) }
@@ -574,6 +672,9 @@ class DComponent extends Component
             </div>
             <div>
                 { this.markTaskSolvedProp() }
+            </div>
+            <div>
+                { this.displayError(this.state.errorString) }
             </div>
             <br/>
             <br/>
