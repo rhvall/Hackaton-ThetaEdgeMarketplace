@@ -25,12 +25,7 @@ import thetaContract from "./contracts/DistributedTask"
 
 import ThetaWalletConnect from "./thetaConnect.js";
 
-const ipfsClient = require('ipfs-http-client');
-const ipfs = ipfsClient({ host: 'ipfs.infura.io', port: 5001,
-                        protocol: "https", apiPath:'/api/v0' });
-
 const thetajs = require("@thetalabs/theta-js");
-// const thetaWallet = require("@thetalabs/theta-wallet-connect");
 
 const TCOOKIE = "ThetaEdgeMarketplacePrivKey";
 const TEXPACC = "https://smart-contracts-sandbox-explorer.thetatoken.org/account/"
@@ -41,7 +36,6 @@ class DComponent extends Component
 {
     constructor(props, context)
     {
-        // IPFS = bafybeiguzlisexandrqqcvidxtpjtid2acudavdebot6zdck5hcjguxc4i
         // 1 theta = 1000000000000000000 Wei
         // Min Wei = 10000001
         // Min Theta = 0.00000000010000001
@@ -622,26 +616,6 @@ class DComponent extends Component
         button.disabled = false;
     }
 
-// QmXJNGZBy9265uzwTXdARRS2fc7xg6cMtCjnD6Cy1b11Ui
-    fileSubmit = async (event) =>
-    {
-        event.preventDefault();
-        //console.log("File to be submitted...");
-        //console.log("Buffer:", this.state.fileBuffer);
-        const fileAddRes = await ipfs.add(this.state.fileBuffer);
-        //console.log(fileAddRes);
-        this.setState({ fileHash: fileAddRes.cid.string });
-        // ipfs.add(this.state.fileBuffer, (error, result) => {
-        //     if (error) {
-        //         console.log('IPFS error', error);
-        //     } else {
-        //         console.log('IPFS result', result);
-        //         const fileHash = result[0].hash;
-        //         this.setState({ fileHash: fileHash });
-        //     }
-        // });
-    }
-
     render()
     {
         const scAddress = TEXPACC + CONTRACTADDRESS;
@@ -669,18 +643,6 @@ class DComponent extends Component
             <div>
                 { this.thetaAccountDetails(this.state.thetaWallet, this.state.thetaAccount) }
             </div>
-        {
-            // <div>
-            //     <h2>Change meme</h2>
-            //     <div>
-            //         <img alt="Img File" src={`https://ipfs.infura.io/ipfs/${this.state.fileHash}`} />
-            //     </div>
-            //     <form onSubmit={this.fileSubmit} >
-            //         <input type="file" onChange={this.captureFile} />
-            //         <input type='submit' />
-            //     </form>
-            // </div>
-        }
             <div>
                 { this.taskListProp(this.state.taskList) }
             </div>

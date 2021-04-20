@@ -12,24 +12,33 @@ Theta Smart Contract Address
 [Webpage: thetaedgemarketplace.on.fleek.co](thetaedgemarketplace.on.fleek.co)
 
 [Webpage IPFS Hash: QmX3pGBAQE6PQiPtd38T2FRi9i59E9CsgK6nVMhV6xJ8Yy](https://explore.ipld.io/#/explore/QmX3pGBAQE6PQiPtd38T2FRi9i59E9CsgK6nVMhV6xJ8Yy)
-|
+
 DevPost Project
 [https://devpost.com/software/theta-edge-compute-market-with-neural-networks](https://devpost.com/software/theta-edge-compute-market-with-neural-networks)
 
 BNN Task IPFS Hash: [QmR5JRNaxvxQtnxkoK1qb4L65yUDUfRgyYT4JQgEH8WN9x](https://explore.ipld.io/#/explore/)
+
 BNN Task IPFS Hash 2: [bafybeibiuruiticm2tkwxjmcythz5iqpxkopqs53brpfl3vwqkg7rbfjwm](https://explore.ipld.io/#/explore/bafybeibiuruiticm2tkwxjmcythz5iqpxkopqs53brpfl3vwqkg7rbfjwm)
 
 [Short Video](https://youtu.be/vo0vzYRZqi4)
+
 [Long Video - Pass: thetahackaton](https://www.dailymotion.com/video/x80g1ic)
 
 ## This project needs you
 In case you are using this project and would like to contribute to its on-going development cost, please leave a tip in any of the following addresses:
 
 Theta: 0xa414013f3Ba21731FFe5ba9794C35d0593ACd214
+
 Bitcoin: 3J7iV6pRY9vWvymJCULdwV7gWabtAfhKhK
+
 Ethereum: 0x8E93f5DB847E2a70ba0dA9ca2B7D608D005DEfee
+
 Bitcoin Cash: qrnsrhhkvathh0vhrj838ywqyzrnvfc2g5f8x3n42k
+
 Litecoin: MM2WdSGTbqz33cqGEDKxJthGNMh9TYQzdj
+
 ZCash: t1QQe9Hr2bzCitpfjk9VSnmVLBCzTV62AKL
+
 Cardano: addr1qy82xnct5f34h7fquqmw8tufp7tdxvc976k8skpw9z68lzss4nxemes0a5s558ts55f5q072z8vgevpyvklcn7ma8v8s375jad
+
 Tezos: tz1fdL7bFirVBvijUXbnrTo666hQVYkigUC3
