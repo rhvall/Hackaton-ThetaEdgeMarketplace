@@ -118,11 +118,13 @@ class DComponent extends Component
     {
         var contract;
 
-        if (connectedWallet._isSigner == true) {
+        if (connectedWallet._isSigner === true) {
             contract = new thetajs.Contract(CONTRACTADDRESS, thetaContract.abi, connectedWallet);
+            // console.log("Contract Signer:", contract);
         }
         else { // Case when connectedWallet comes from ThetaWalletConnect
             contract = new thetajs.Contract(CONTRACTADDRESS, thetaContract.abi, connectedWallet.provider);
+            // console.log("Contract Provider:", contract);
         }
 
         try {
@@ -137,7 +139,7 @@ class DComponent extends Component
                 this.solutionsForTask(arr[1], contract);
                 return arr;
             });
-            console.log("TaskList: ", tasks);
+
             this.setState({
                 taskList: tasks
             });
@@ -392,7 +394,7 @@ class DComponent extends Component
             this.setState({ errorString: strErr });
         }
 
-        if (res == false) {
+        if (res === false) {
             strErr = "Connection not successful";
             this.setState({ errorString: strErr });
             return;
@@ -406,7 +408,7 @@ class DComponent extends Component
             return;
         }
 
-        if (accs.length == 0) {
+        if (accs.length === 0) {
             strErr = "No accounts found";
             this.setState({ errorString: strErr });
             return;
@@ -436,7 +438,7 @@ class DComponent extends Component
         const wallet = new thetajs.Wallet(privKey);
         const connectedWallet = await wallet.connect(thetaProvider);
         const connectedAccount = await thetaProvider.getAccount(connectedWallet.address);
-        console.log("connectedWallet:", connectedWallet);
+
         this.setState({
             thetaAccount: connectedAccount,
             thetaWallet: connectedWallet
@@ -522,12 +524,19 @@ class DComponent extends Component
         console.log("Task submit:", taskHash, taskValue);
 
         try {
-            const res = await contract.commitTaskHash(taskHash, overrides);
-            console.log("Task submitted: ", res);
+            if (contract.signer === null) {
+                const res = await contract.populateTransaction.commitTaskHash(taskHash, overrides);
+                const txResult = await ThetaWalletConnect.sendTransaction(res);
+                console.log("Task via wallet connect submitted: ", txResult);
+            }
+            else {
+                const res = await contract.commitTaskHash(taskHash, overrides);
+                console.log("Task submitted: ", res);
+            }
+
             setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
         }
-        catch (e)
-        {
+        catch (e) {
             console.log("Failed task submission:", e);
         }
 
@@ -555,12 +564,18 @@ class DComponent extends Component
         button.disabled = true;
         console.log("Solution submit", solutionHash, solutionTask);
         try {
-            const res = await contract.commitSolutionHash(solutionTask, solutionHash);
-            console.log("Result solution transaction: ", res)
+            if (contract.signer === null) {
+                const res = await contract.populateTransaction.commitSolutionHash(solutionTask, solutionHash);
+                const txResult = await ThetaWalletConnect.sendTransaction(res);
+                console.log("Result solution transaction via wallet connect: ", txResult)
+            }
+            else {
+                const res = await contract.commitSolutionHash(solutionTask, solutionHash);
+                console.log("Result solution transaction: ", res)
+            }
             setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
         }
-        catch (e)
-        {
+        catch (e) {
             console.log('Failed solution submission:', e);
         }
 
@@ -589,11 +604,18 @@ class DComponent extends Component
         console.log("Task Solved submit", taskHashSolution, taskSolution);
         button.disabled = true;
         try {
-            const res = await contract.markTaskSolved(taskHashSolution, taskSolution)
-            console.log("Hash of task solved:", res)
+            if (contract.signer === null) {
+                const res = await contract.populateTransaction.markTaskSolved(taskHashSolution, taskSolution);
+                const txResult = await ThetaWalletConnect.sendTransaction(res);
+                console.log("Hash of task solved: ", txResult)
+            }
+            else {
+                const res = await contract.markTaskSolved(taskHashSolution, taskSolution)
+                console.log("Hash of task solved:", res)
+            }
             setTimeout(()=>{this.loadContractData((this.state.thetaWallet))}, 1000);
-        } catch (e)
-        {
+        }
+        catch (e) {
             console.log('Failed task solved submission:', e);
         }
 
